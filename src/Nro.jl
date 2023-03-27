@@ -1,4 +1,4 @@
-module nro
+module Nro
 
 export naive_random_oversampler
 
@@ -23,4 +23,4 @@ function naive_random_oversampler(X, y::AbstractVector)
     return X, y
 end
 
-end # module nro
+end # module Nro
