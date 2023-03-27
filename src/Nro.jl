@@ -3,10 +3,13 @@ module Nro
 export naive_random_oversampler
 
 # using MLUtils for getobs
-using MLUtils
+using MLUtils, Tables
 
 # assuming 2-class classification
 function naive_random_oversampler(X, y::AbstractVector)
+    # check if X implements getobs
+    @assert Tables.istable(X) "X is not implementing the MLUtils.jl getobs interface"
+
     # retrieve the classes
     classes = unique(y)
 
@@ -25,12 +28,19 @@ function naive_random_oversampler(X, y::AbstractVector)
     rndidxs = rand(minorityidxs, surplus)
 
     # create a copy of the dataset
-    Xover = copy(X)
-    yover = copy(y)
+    Xover = deepcopy(X)
+    yover = deepcopy(y)
 
     # add the samples to the copied dataset
     for idx in rndidxs
-        push!(Xover, getobs(X, idx))
+        if typeof(Xover) <: Union{Tuple, NamedTuple}
+            sample = getobs(X, idx)
+            for (i, col) in enumerate(Xover)
+                push!(col, sample[i])
+            end
+        else
+            push!(Xover, getobs(X, idx))
+        end
         push!(yover, y[idx])
     end
 
