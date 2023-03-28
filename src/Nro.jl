@@ -3,7 +3,7 @@ module Nro
 export naive_random_oversampler
 
 # using MLUtils for getobs
-using MLUtils, Tables
+using MLUtils, Tables, DataFrames
 
 # assuming 2-class classification
 function naive_random_oversampler(X, y::AbstractVector)
@@ -28,19 +28,12 @@ function naive_random_oversampler(X, y::AbstractVector)
     rndidxs = rand(minorityidxs, surplus)
 
     # create a copy of the dataset
-    Xover = deepcopy(X)
+    Xover = DataFrame(X)
     yover = deepcopy(y)
 
     # add the samples to the copied dataset
     for idx in rndidxs
-        if typeof(Xover) <: Union{Tuple, NamedTuple}
-            sample = getobs(X, idx)
-            for (i, col) in enumerate(Xover)
-                push!(col, sample[i])
-            end
-        else
-            push!(Xover, getobs(X, idx))
-        end
+        push!(Xover, getobs(X, idx))
         push!(yover, y[idx])
     end
 
